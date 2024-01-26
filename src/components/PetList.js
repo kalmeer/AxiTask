@@ -1,15 +1,28 @@
-import React, { useState, useSyncExternalStore } from "react";
-import petsData from "../petsData";
+import React, { useEffect, useState, useSyncExternalStore } from "react";
 import PetItem from "./PetItem";
 import Modal from "./Modal";
+import { GetAllPets } from "../api/pets";
+import { useQuery } from "@tanstack/react-query";
 
 const PetList = () => {
   const [query, setQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  const petList = petsData
-    .filter((pet) => pet.name.toLowerCase().includes(query.toLowerCase()))
+  const reponse = useQuery({
+    queryKey: ["test"],
+    queryFn: GetAllPets,
+  });
+
+  useEffect(() => {
+    reponse.refetch();
+  }, []);
+
+  const petList = reponse.data?.data
+    ?.filter(
+      (pet) => pet.name && pet.name?.toLowerCase().includes(query.toLowerCase())
+    )
     .map((pet) => <PetItem pet={pet} key={pet.id} />);
+
   return (
     <>
       <div className="bg-[#F9E3BE] flex flex-col justify-center items-center ">
